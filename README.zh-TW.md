@@ -1,6 +1,7 @@
 # Happy Whale and Dolphin Identification
 
-[![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_final.pdf)
+[![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_Report.pdf)
+[![Project slide](https://img.shields.io/badge/Project-slide-yellow)](report/CV_Slide.pdf)
 
 這個專案是電腦視覺課程的期末專題，題目來自 Kaggle **Happy Whale and Dolphin Identification** competition，目標是根據影像辨識每一隻鯨豚個體。
 我們主要把這個問題視為 image retrieval / metric learning 任務。每個模型先訓練出具有辨識力的 embedding，推論時再結合 KNN similarity、class prototype、logits、species 資訊、多種 crop mode ensemble，以及最後的多模型融合。

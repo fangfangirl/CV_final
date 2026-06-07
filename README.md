@@ -1,6 +1,7 @@
 # Happy Whale and Dolphin Identification
 
-[![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_final.pdf)
+[![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_Report.pdf)
+[![Project slide](https://img.shields.io/badge/Project-slide-yellow)](report/CV_Slide.pdf)
 
 This repository contains our final project for a computer vision course. The project is based on the Kaggle **Happy Whale and Dolphin Identification** competition, where the goal is to identify individual whales and dolphins from images.
 
