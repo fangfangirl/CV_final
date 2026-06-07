@@ -1,12 +1,19 @@
 # Happy Whale and Dolphin Identification
 
+[![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_final.pdf)
+
 這個專案是電腦視覺課程的期末專題，題目來自 Kaggle **Happy Whale and Dolphin Identification** competition，目標是根據影像辨識每一隻鯨豚個體。
-
-📄 [Project report](report/CV_final.pdf)
-
 我們主要把這個問題視為 image retrieval / metric learning 任務。每個模型先訓練出具有辨識力的 embedding，推論時再結合 KNN similarity、class prototype、logits、species 資訊、多種 crop mode ensemble，以及最後的多模型融合。
 
 實驗主要在 **Google Colab A100** 上進行。因為 Colab 長時間訓練可能會斷線，notebook 會將 checkpoint、embedding、matrix 和 submission 上傳到 Hugging Face，方便中斷後繼續訓練或推論。
+
+## 課程與組員
+
+- 課程：NYCU Computer Vision 2026
+- 組員：
+  - 張周芳，314511037
+  - 劉霈琳，313554063
+  - 何柏翰，112550028
 
 ## 專案結構
 
@@ -171,6 +178,15 @@ Hugging Face repository 中可能會有很多實驗資料夾。選擇 artifacts 
 
 簡單來說，如果某個 model branch 使用特定 epoch 或版本，embedding folder 後面通常會加上該數字；如果沒有指定數字，就使用由 `last_checkpoint` 產生的預設 artifacts。
 
+## 安裝與帳號參考連結
+
+- PyTorch 本機安裝選擇器：https://pytorch.org/get-started/locally/
+- Conda 安裝文件：https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html
+- Kaggle API 文件：https://www.kaggle.com/docs/api
+- KaggleHub 套件：https://github.com/Kaggle/kagglehub
+- Hugging Face access token：https://huggingface.co/settings/tokens
+- Hugging Face token 權限說明：https://huggingface.co/docs/hub/security-tokens
+
 ## Environment Setup
 
 ### Colab A100
@@ -213,10 +229,16 @@ conda create -n happywhale-cv python=3.11 -y
 conda activate happywhale-cv
 ```
 
-3. 依照你的 CUDA 版本安裝 PyTorch。以下是 CUDA 12.6 範例：
+3. 依照你的系統設定安裝 PyTorch：
+
+   - 前往 [PyTorch 本機安裝選擇器](https://pytorch.org/get-started/locally/)。
+   - 選擇你的作業系統、package 類型（`pip`）和 CUDA 版本。
+   - 執行官方產生的安裝指令。
+
+   以下是 CUDA 12.6 範例：
 
 ```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 ```
 
 4. 安裝其餘套件：

@@ -1,14 +1,22 @@
 # Happy Whale and Dolphin Identification
 
-This repository contains our final project for a computer vision course. The project is based on the Kaggle **Happy Whale and Dolphin Identification** competition, where the goal is to identify individual whales and dolphins from images.
-
 [![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_final.pdf)
+
+This repository contains our final project for a computer vision course. The project is based on the Kaggle **Happy Whale and Dolphin Identification** competition, where the goal is to identify individual whales and dolphins from images.
 
 We mainly treat the task as an image retrieval / metric-learning problem. Each model is trained to produce discriminative embeddings, then inference combines KNN similarity, class prototypes, logits, species information, crop-mode ensembles, and final multi-model fusion.
 
 The experiments were run primarily on **Google Colab A100**. Because Colab sessions may disconnect after long training runs, the notebooks save checkpoints, embeddings, matrices, and submissions to Hugging Face so training and inference can be resumed.
 
-> The previous Traditional Chinese draft is preserved as [README.zh-TW.md](README.zh-TW.md).
+> The Traditional Chinese is preserved as [README.zh-TW.md](README.zh-TW.md).
+
+## Course / Team
+
+- Course: NYCU Computer Vision 2026
+- Team members:
+  - 張周芳, 314511037
+  - 劉霈琳, 313554063
+  - 何柏翰, 112550028
 
 ## Project Structure
 
@@ -173,6 +181,16 @@ Some Hugging Face repositories contain many experiment folders. Use the followin
 
 In short, if a model branch uses a dedicated epoch/version, its embedding folder name usually carries that number. If no number is specified, use the default artifacts generated from `last_checkpoint`.
 
+## Setup Reference Links
+
+- Google Colab: https://colab.research.google.com/
+- PyTorch local installation selector: https://pytorch.org/get-started/locally/
+- Conda installation guide: https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html
+- Kaggle API documentation: https://www.kaggle.com/docs/api
+- KaggleHub package: https://github.com/Kaggle/kagglehub
+- Hugging Face access tokens: https://huggingface.co/settings/tokens
+- Hugging Face token permissions: https://huggingface.co/docs/hub/security-tokens
+
 ## Environment Setup
 
 ### Colab A100
@@ -187,8 +205,8 @@ This is the recommended environment for reproducing the experiments.
 pip install -q kagglehub timm albumentations huggingface_hub
 ```
 
-4. Configure Kaggle access with `kagglehub.login()` or Colab/Kaggle credentials.
-5. Configure Hugging Face access through Colab Secrets or environment variables:
+4. Configure Kaggle access with `kagglehub.login()` or Colab/Kaggle credentials. See the [Kaggle API documentation](https://www.kaggle.com/docs/api) and the [KaggleHub package](https://github.com/Kaggle/kagglehub).
+5. Configure Hugging Face access through Colab Secrets or environment variables. Hugging Face access tokens can be created from the [User Access Tokens page](https://huggingface.co/settings/tokens).
 
 ```python
 import os
@@ -208,17 +226,23 @@ Local execution is possible, but full training is only practical with a CUDA GPU
 cd CV_final
 ```
 
-2. Create and activate a Conda environment:
+2. Create and activate a Conda environment. Conda installation instructions are available in the [official Conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 ```bash
 conda create -n happywhale-cv python=3.11 -y
 conda activate happywhale-cv
 ```
 
-3. Install PyTorch for your CUDA version. Example for CUDA 12.6:
+3. Install PyTorch based on your system configuration:
+
+   - Visit the [official PyTorch local installation selector](https://pytorch.org/get-started/locally/).
+   - Select your OS, package type (`pip`), and CUDA version.
+   - Run the generated command.
+
+   Example for CUDA 12.6:
 
 ```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 ```
 
 4. Install the remaining packages:
@@ -227,7 +251,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 ```
 
-5. Prepare Kaggle credentials or login through KaggleHub:
+5. Prepare Kaggle credentials or login through KaggleHub. For credential setup, see the [Kaggle API documentation](https://www.kaggle.com/docs/api).
 
 ```bash
 kaggle competitions download -c happy-whale-and-dolphin
@@ -235,7 +259,7 @@ kaggle competitions download -c happy-whale-and-dolphin
 
 or run `kagglehub.login()` in the notebooks.
 
-6. Set Hugging Face environment variables.
+6. Set Hugging Face environment variables. For token creation and permissions, see the [Hugging Face token documentation](https://huggingface.co/docs/hub/security-tokens).
 
 For Windows PowerShell:
 
