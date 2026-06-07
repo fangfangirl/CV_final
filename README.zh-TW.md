@@ -103,6 +103,8 @@ CV_final/
     pseudo.csv
 ```
 
+我們只提供本專案使用的 pseudo-label CSV，不提供產生 pseudo labels 的程式碼。如果你想要自己產生 pseudo labels，請自行實作或準備產生流程，並把產生出的 CSV 放在 `data/pseudo.csv`，或將 `CFG.pseudo_csv` / `PSEUDO_CSV` 指到你自己的檔案路徑。
+
 若要啟用 pseudo-label training，請設定：
 
 ```python

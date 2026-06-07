@@ -106,6 +106,8 @@ CV_final/
     pseudo.csv
 ```
 
+We provide the pseudo-label CSV used by this project, but we do **not** provide the code for generating pseudo labels. If you want to create your own pseudo labels, please build your own generation pipeline and place the resulting CSV at `data/pseudo.csv` or set `CFG.pseudo_csv` / `PSEUDO_CSV` to your own file path.
+
 To enable pseudo-label training, set:
 
 ```python
