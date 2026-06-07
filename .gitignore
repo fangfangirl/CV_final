@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local environments and secrets
+.env
+.env.*
+kaggle.json
+*.pem
+*.key
+
+# Data and downloaded caches
+data/
+datasets/
+input/
+output/
+outputs/
+kaggle/
+kagglehub/
+
+# Experiment artifacts
+checkpoints/
+embeddings/
+mats/
+submissions/
+crop_submission*/
+multimodel*/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.npy
+*.npz
+*.zip
+*.tar
+*.tar.gz
+
+# Generated CSV outputs
+submission*.csv
+submission_summary.csv
+pseudo.csv
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
