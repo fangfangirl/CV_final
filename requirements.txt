@@ -1,5 +1,6 @@
 albumentations
 huggingface_hub
+ipykernel
 kagglehub
 matplotlib
 numpy

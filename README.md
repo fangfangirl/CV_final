@@ -1,77 +1,63 @@
 # Happy Whale and Dolphin Identification
 
-This repository contains our final project for a computer vision course. The task is based on the Kaggle **Happy Whale and Dolphin Identification** competition, where the goal is to identify individual whales and dolphins from images.
+This repository contains our final project for a computer vision course. The project is based on the Kaggle **Happy Whale and Dolphin Identification** competition, where the goal is to identify individual whales and dolphins from images.
 
-The project uses several deep learning models to extract image embeddings, builds similarity-based prediction matrices, and combines multiple models and crop modes to generate the final submission.
+[![Project report](https://img.shields.io/badge/Project-report-red)](report/CV_final.pdf)
 
-> A Traditional Chinese draft is kept in `README.zh-TW.md` for reference.
+We mainly treat the task as an image retrieval / metric-learning problem. Each model is trained to produce discriminative embeddings, then inference combines KNN similarity, class prototypes, logits, species information, crop-mode ensembles, and final multi-model fusion.
 
-## Introduction
+The experiments were run primarily on **Google Colab A100**. Because Colab sessions may disconnect after long training runs, the notebooks save checkpoints, embeddings, matrices, and submissions to Hugging Face so training and inference can be resumed.
 
-The main idea of this project is to treat individual identification as a metric-learning and retrieval problem. Each single model is trained with an ArcFace-style classification head, then used to extract embeddings and logits for both training and test images. During inference, we combine:
-
-- KNN similarity scores
-- Logit-based class scores
-- Class prototype scores
-- Species-aware score adjustment
-- Weighted crop-mode ensembles
-- Final multi-model ensemble
-
-The experiments were mainly run on **Google Colab A100**. Since Colab runtimes can disconnect after long sessions, the notebooks are designed to save and resume checkpoints through Hugging Face.
+> The previous Traditional Chinese draft is preserved as [README.zh-TW.md](README.zh-TW.md).
 
 ## Project Structure
 
 | File | Description |
 | --- | --- |
-| `cv_V2_model.ipynb` | EfficientNetV2-XL single-model notebook for training, embedding extraction, and crop inference. |
-| `cv_V2_model_7.ipynb` | EfficientNetV2-L single-model notebook. It also contains multi-model concat related logic. |
-| `cv_B7_model.ipynb` | EfficientNet-B7 single-model notebook using the B7 training configuration. |
-| `cv_B6_model_charm_hf_ipynb.ipynb` | EfficientNet-B6 single-model notebook with full-body/backfin/charm crop settings. |
-| `cv_final_ensemble_hf.ipynb` | Final ensemble notebook. It downloads model outputs from Hugging Face, builds KNN/prototype matrices, and generates submissions. |
-| `scripts/clean_notebooks_for_github.py` | Utility script for cleaning notebook outputs and removing accidental token strings before pushing to GitHub. |
-| `README.zh-TW.md` | Preserved Traditional Chinese README draft. |
+| [cv_v2xl_model_hf_ipynb.ipynb](cv_v2xl_model_hf_ipynb.ipynb) | EfficientNetV2-XL notebook for training, embedding extraction, and crop inference. |
+| [cv_B7_model_hf_ipynb.ipynb](cv_B7_model_hf_ipynb.ipynb) | EfficientNet-B7 notebook using the B7 training configuration. |
+| [cv_B6_model_charm_hf_ipynb.ipynb](cv_B6_model_charm_hf_ipynb.ipynb) | EfficientNet-B6 notebook with full-body, backfin, and charm crop settings. |
+| [cv_convnext_model_hf.ipynb](cv_convnext_model_hf.ipynb) | ConvNeXt notebook for another single-model branch. |
+| [cv_final_ensemble_hf.ipynb](cv_final_ensemble_hf.ipynb) | Final ensemble notebook. It downloads model outputs from Hugging Face, builds / loads matrices, fuses predictions, and generates submissions. |
+| [requirements.txt](requirements.txt) | Python dependencies for local execution and Jupyter kernels. |
+| [data/README.md](data/README.md) | Documents the expected local dataset directory layout. |
 
 ## Method Summary
 
 - Backbones:
-  - `tf_efficientnetv2_xl.in21k`
-  - `tf_efficientnetv2_l.in21k`
-  - `tf_efficientnet_b7_ns`
-  - `tf_efficientnet_b6_ns`
-- Loss / head:
-  - ArcFace-style margin head
+  - EfficientNetV2-XL
+  - EfficientNet-B7
+  - EfficientNet-B6
+  - ConvNeXt
+- Training:
+  - ArcFace-style classification head
   - Sub-center ArcFace
   - Adaptive margin
   - Optional focal loss
-- Augmentation:
-  - Albumentations
-- Crop modes:
-  - Original image
-  - Full-body bounding box crop
-  - Backfin crop
-  - Charm / additional crop variants for B6
+  - Full-body / backfin crop augmentation
 - Inference:
   - Embedding similarity
-  - KNN voting
-  - Logit score fusion
-  - Class prototype scoring
+  - KNN score matrix
+  - Logit score matrix
+  - Class prototype score matrix
   - Species bonus / penalty
   - Weighted crop ensemble
-- Storage:
-  - Checkpoints, embeddings, matrices, and submissions are uploaded to Hugging Face instead of GitHub.
+  - Final multi-model ensemble
 
 ## Dataset
 
-The project uses the following Kaggle / KaggleHub resources:
+The notebooks use Kaggle / KaggleHub datasets:
 
-- `happy-whale-and-dolphin`
-- `jpbremer/fullbodywhaleannotations`
-- `genlaxai/happy-whale-backfin-cropped`
-- `changchoufang/fullybody-charm`
+- `happy-whale-and-dolphin`: https://www.kaggle.com/competitions/happy-whale-and-dolphin
+- `jpbremer/fullbodywhaleannotations`: https://www.kaggle.com/datasets/jpbremer/fullbodywhaleannotations
+- `genlaxai/happy-whale-backfin-cropped`: https://www.kaggle.com/datasets/genlaxai/happy-whale-backfin-cropped
+- `changchoufang/fullybody-charm`: https://www.kaggle.com/datasets/changchoufang/fullybody-charm
 
-These files are large and are **not included** in this repository. The notebooks can download or locate the datasets through KaggleHub when running in Colab or Kaggle Notebook.
+The datasets are large and are **not included** in this repository. The notebooks can download or locate the data through KaggleHub when running in Colab.
 
-For local execution, prepare the data in a structure similar to:
+For local execution, place datasets under `data/`. A template is provided in [data/README.md](data/README.md).
+
+Prepare a structure similar to:
 
 ```bash
 CV_final/
@@ -90,24 +76,119 @@ CV_final/
   submissions/
 ```
 
-Then update the path candidates in the `CFG` class of each notebook, or set the corresponding paths manually before running the data preparation cells.
+If your local paths are different, update the path candidates in the `CFG` class of each notebook before running training or inference.
+
+Some notebooks include a helper named `_get_or_download_kaggle_paths()`. In Colab/Kaggle, it can reuse KaggleHub paths from previous cells. On a local machine, either place the data under the default `data/` layout, edit the fallback paths in this helper, or define the path variables before running the cell:
+
+```python
+happy_whale_and_dolphin_path = "data/happy-whale-and-dolphin"
+jpbremer_fullbodywhaleannotations_path = "data/fullbodywhaleannotations"
+backfin_path = "data/happy-whale-backfin-cropped"
+fullbody_charm_path = "data/fullybody-charm"  # only needed by notebooks that use charm crops
+```
+
+## Pseudo Labels
+
+This project can also use an optional [data/pseudo.csv](data/pseudo.csv) file for pseudo-label training. The file is provided under `data/`:
+
+```bash
+CV_final/
+  data/
+    pseudo.csv
+```
+
+To enable pseudo-label training, set:
+
+```python
+CFG.use_pseudo = True
+CFG.pseudo_csv = "data/pseudo.csv"
+```
+
+The notebooks also support overriding the path through the `PSEUDO_CSV` environment variable:
+
+```python
+import os
+os.environ["PSEUDO_CSV"] = "data/pseudo.csv"
+```
+
+Expected columns include:
+
+- `image`
+- `top1_pred`
+- `top1_score`
+- `top2_pred`
+- `top2_score`
+- `score_margin_top1_top2`
+
+The notebooks filter pseudo labels by confidence threshold, margin threshold, known individual IDs, and maximum pseudo samples per ID.
+
+## Hugging Face Artifacts
+
+The trained model checkpoints and extracted embeddings are provided through Hugging Face because the files are too large to include in this code package.
+
+Each single-model notebook uses a Hugging Face repository for:
+
+- checkpoints, for example `checkpoints/last_checkpoint.pth`
+- train/test embedding `.npz` files
+- component matrices
+- crop submission files
+
+Current repository settings used by the notebooks:
+
+| Model / Output | Hugging Face repository setting |
+| --- | --- |
+| EfficientNetV2-XL | `fangfang777/happywhale_v2xl_pseudo_768` |
+| EfficientNet-B7 | `fangfang777/happywhale_b7_multicrop_fnb_subcenter_species_pseudo_1024_by_lin` |
+| EfficientNet-B6 | `liu-peilin/happywhale_b6_pseudo_charm_round2_1024_v2` |
+| ConvNeXt | `liu-peilin/conv` |
+| Final ensemble output | `liu-peilin/happywhale_ensemble_v2xl_b6_b7_conv_v1` |
+
+If the repositories are private, users need a Hugging Face token with read permission. Configure it before running notebooks:
+
+```python
+import os
+os.environ["HF_TOKEN"] = "your_huggingface_token"
+```
+
+For the final ensemble notebook, model repositories can be overridden with:
+
+```python
+os.environ["HF_REPO_ID_V2XL"] = "your_name/v2xl_repo"
+os.environ["HF_REPO_ID_B6"] = "your_name/b6_repo"
+os.environ["HF_REPO_ID_B7"] = "your_name/b7_repo"
+os.environ["HF_REPO_ID_CONV"] = "liu-peilin/conv"
+```
+
+To skip training and use provided artifacts, run the setup/config cells, set the correct Hugging Face repo ids, then run the download / inference / ensemble cells.
+
+### Artifact Folder Naming
+
+Some Hugging Face repositories contain many experiment folders. Use the following rule when selecting artifacts:
+
+- `checkpoints/last_checkpoint.pth` is the default checkpoint used for resume or inference.
+- `embeddings` usually corresponds to the default / latest checkpoint path used by the notebook.
+- `embeddings_25`, `embeddings_31`, or other numbered embedding folders correspond to a specific checkpoint epoch or experiment version.
+- Crop submission folders may also include numbers or score-weight tags, for example `crop_submission_new_correct_single_502030_bonus0.1_31`.
+- When a notebook sets `CFG.hf_embedding_dir = "embeddings_31"`, use the matching numbered embedding folder instead of the generic `embeddings` folder.
+
+In short, if a model branch uses a dedicated epoch/version, its embedding folder name usually carries that number. If no number is specified, use the default artifacts generated from `last_checkpoint`.
 
 ## Environment Setup
 
-### Colab A100 Setup
+### Colab A100
 
-This project was mainly developed on **Google Colab A100**.
+This is the recommended environment for reproducing the experiments.
 
-1. Open the target notebook in Colab.
-2. Enable GPU runtime.
-3. Use A100 if available.
-4. Run the setup cells that install:
+1. Open a notebook in Google Colab.
+2. Select a GPU runtime and use A100 if available.
+3. Run the install cell in the notebook, or install the main dependencies manually:
 
 ```bash
 pip install -q kagglehub timm albumentations huggingface_hub
 ```
 
-5. Set the following secrets or environment variables:
+4. Configure Kaggle access with `kagglehub.login()` or Colab/Kaggle credentials.
+5. Configure Hugging Face access through Colab Secrets or environment variables:
 
 ```python
 import os
@@ -115,82 +196,75 @@ os.environ["HF_TOKEN"] = "your_huggingface_token"
 os.environ["HF_REPO_ID"] = "your_name/your_hf_repo"
 ```
 
-For Colab, `HF_TOKEN` can also be stored in Colab Secrets. For Kaggle access, use `kagglehub.login()` or Kaggle credentials.
+Do not hard-code real tokens in notebooks.
 
-### Local Setup
+### Local Machine
 
-If you want to run the project locally, a CUDA GPU with large VRAM is strongly recommended. Full training of the large EfficientNet models is not practical on CPU.
+Local execution is possible, but full training is only practical with a CUDA GPU with enough VRAM. CPU execution is not recommended for training these models.
 
-1. Clone the repository:
+1. Download the project files and enter the project folder:
 
 ```bash
-git clone <your-github-repo-url>
 cd CV_final
 ```
 
-2. Create a Python environment:
+2. Create and activate a Conda environment:
 
 ```bash
 conda create -n happywhale-cv python=3.11 -y
 conda activate happywhale-cv
 ```
 
-3. Install PyTorch according to your CUDA version:
-
-Visit the official PyTorch installation page and choose the correct command:
+3. Install PyTorch for your CUDA version. Example for CUDA 12.6:
 
 ```bash
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 ```
 
-4. Install the remaining dependencies:
+4. Install the remaining packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-5. Authenticate Kaggle / KaggleHub:
+5. Prepare Kaggle credentials or login through KaggleHub:
 
 ```bash
 kaggle competitions download -c happy-whale-and-dolphin
 ```
 
-or use `kagglehub.login()` inside the notebooks.
+or run `kagglehub.login()` in the notebooks.
 
-6. Set Hugging Face environment variables:
+6. Set Hugging Face environment variables.
 
-```bash
-set HF_TOKEN=your_huggingface_token
-set HF_REPO_ID=your_name/your_hf_repo
-```
-
-On PowerShell:
+For Windows PowerShell:
 
 ```powershell
 $env:HF_TOKEN="your_huggingface_token"
 $env:HF_REPO_ID="your_name/your_hf_repo"
 ```
 
-7. Open Jupyter:
+For Linux / macOS:
 
 ```bash
-jupyter notebook
+export HF_TOKEN="your_huggingface_token"
+export HF_REPO_ID="your_name/your_hf_repo"
 ```
 
-Then run the notebooks in the same order described below.
+If you want to use the provided model checkpoints and embeddings directly, set `HF_TOKEN` and the corresponding `HF_REPO_ID_*` variables described in the Hugging Face Artifacts section.
 
-## Usage
+## Workflow
 
-### 1. Single-Model Training
+### 1. Train a Single Model
 
-Use one of the single-model notebooks:
+Open one of the model notebooks:
 
-- `cv_V2_model.ipynb`
-- `cv_V2_model_7.ipynb`
-- `cv_B7_model.ipynb`
-- `cv_B6_model_charm_hf_ipynb.ipynb`
+- [cv_v2xl_model_hf_ipynb.ipynb](cv_v2xl_model_hf_ipynb.ipynb)
+- [cv_B7_model_hf_ipynb.ipynb](cv_B7_model_hf_ipynb.ipynb)
+- [cv_B6_model_charm_hf_ipynb.ipynb](cv_B6_model_charm_hf_ipynb.ipynb)
+- [cv_convnext_model_hf.ipynb](cv_convnext_model_hf.ipynb)
 
-Before training, check the `CFG` class:
+Check the `CFG` class before running:
 
 ```python
 CFG.do_train = True
@@ -199,123 +273,127 @@ CFG.hf_upload = True
 CFG.hf_repo_id = "your_name/your_hf_repo"
 ```
 
-During training, checkpoints are saved locally and uploaded to Hugging Face. The most important checkpoint path is:
+The notebooks save checkpoints locally and upload them to Hugging Face. The common checkpoint path is:
 
 ```python
 CFG.hf_checkpoint_file = "checkpoints/last_checkpoint.pth"
 ```
 
-### 2. Colab 24-Hour Disconnect and Resume
+If you want to continue training from our provided model checkpoint, first download the checkpoint from the corresponding Hugging Face repository, place it at the path expected by the notebook, and enable resume:
 
-Colab A100 sessions may disconnect after long training runs. To continue training after a disconnect:
+```python
+CFG.resume = True
+CFG.hf_checkpoint_file = "checkpoints/last_checkpoint.pth"
+```
 
-1. Reopen the notebook in Colab.
-2. Re-enable A100 GPU.
-3. Re-run setup, imports, KaggleHub, and config cells.
-4. Make sure the same Hugging Face repo is used:
+Users normally cannot upload new checkpoints back to our Hugging Face repositories unless they have write permission to those repositories. To save your own continued training results, create your own Hugging Face repository and set:
+
+```python
+CFG.hf_upload = True
+CFG.hf_repo_id = "your_name/your_hf_repo"
+```
+
+In short: use our Hugging Face artifacts for downloading / resuming, then upload your new checkpoints and embeddings to your own Hugging Face repository.
+
+### 2. Resume After Colab Disconnects
+
+Colab A100 sessions may disconnect after long runs, often around the 24-hour runtime limit. The notebooks are designed to resume from Hugging Face checkpoints.
+
+To resume:
+
+1. Reopen the same notebook.
+2. Reconnect to an A100 GPU runtime.
+3. Re-run the install, import, data path, and config cells.
+4. Use the same Hugging Face repository:
 
 ```python
 CFG.hf_repo_id = "your_name/your_hf_repo"
 CFG.resume = True
-CFG.resume_from_hf = True  # if the notebook provides this option
+CFG.resume_from_hf = True  # download a checkpoint from Hugging Face if the notebook supports this option
 CFG.hf_checkpoint_file = "checkpoints/last_checkpoint.pth"
 ```
 
-5. Run the resume / checkpoint loading cell.
-6. Continue the training cells.
+5. Run the checkpoint loading cell.
+6. Continue training.
 
-Because `hf_upload_each_epoch` is enabled in the training notebooks, the latest checkpoint should be available on Hugging Face after each epoch. If the runtime disconnects, download or resume from that checkpoint instead of restarting from epoch 0.
+If `hf_upload_each_epoch` is enabled, the latest checkpoint should be uploaded after each epoch, so you do not need to restart training from epoch 0.
 
-### 3. Embedding Extraction
+### 3. Extract Embeddings
 
-After training a model, extract train/test embeddings:
+After training, switch to embedding extraction:
 
 ```python
 CFG.do_train = False
 CFG.do_embedding = True
 ```
 
-The output files are saved as `.npz` files and uploaded to the configured Hugging Face repository under the embedding directory, for example:
+The notebooks export train/test `.npz` files and upload them to the configured Hugging Face embedding directory, such as:
 
 ```python
 CFG.hf_embedding_dir = "embeddings"
 ```
 
-or, for the B7 setting:
+If embeddings are already available on Hugging Face, you can skip extraction and run the notebook cells that download embeddings for inference.
 
-```python
-CFG.hf_embedding_dir = "embeddings_31"
-```
+### 4. Build Crop Inference Outputs
 
-### 4. Crop Inference
-
-To build prediction matrices and crop-mode submissions:
+To build component matrices and crop-mode submissions:
 
 ```python
 CFG.run_mode = "crop_inference"
 CFG.do_crop_inference = True
 ```
 
-The notebooks combine several crop modes such as:
+The notebooks use crop modes such as:
 
 ```python
 CFG.crop_infer_modes = ["fullbody", "backfin", "none"]
 ```
 
-Weighted crop submissions are generated according to `CFG.crop_weight_sets`.
+The weighted crop combinations are controlled by:
 
-### 5. Final Ensemble
-
-Run:
-
-```text
-cv_final_ensemble_hf.ipynb
+```python
+CFG.crop_weight_sets
 ```
 
-This notebook downloads model outputs from Hugging Face, restores prediction matrices, applies weighted model/crop fusion, and creates final submission files.
+### 5. Run Final Ensemble
 
-## GitHub Upload Notes
+Open [cv_final_ensemble_hf.ipynb](cv_final_ensemble_hf.ipynb).
 
-Before pushing to GitHub, clean notebook outputs:
+This notebook downloads the saved model outputs from Hugging Face, combines the model/crop matrices, applies score fusion, and generates final submission files.
 
-```bash
-python scripts/clean_notebooks_for_github.py
+Before running the final ensemble, make sure the Hugging Face repositories for all model branches are accessible through `HF_TOKEN` and the `HF_REPO_ID_*` environment variables.
+
+If you trained your own model branches by following the previous steps, you can also ensemble your own artifacts. In [cv_final_ensemble_hf.ipynb](cv_final_ensemble_hf.ipynb), update the model repository variables and folder names to match your Hugging Face outputs:
+
+```python
+os.environ["HF_REPO_ID_V2XL"] = "your_name/your_v2xl_repo"
+os.environ["HF_REPO_ID_B6"] = "your_name/your_b6_repo"
+os.environ["HF_REPO_ID_B7"] = "your_name/your_b7_repo"
+os.environ["HF_REPO_ID_CONV"] = "your_name/your_convnext_repo"
 ```
 
-Then check:
+Also check the crop weights, embedding folder names, and crop submission folder names used inside the final ensemble notebook. They should point to the artifacts generated by your own training / inference runs.
 
-```bash
-git status
-git diff --stat
-```
+## Results
 
-Do not commit:
+### Overall Pipeline
 
-- Kaggle datasets
-- Hugging Face tokens
-- checkpoints
-- embeddings
-- `.npy` / `.npz` prediction matrices
-- submissions
-- Colab cache files
+The figure below summarizes the proposed training and inference pipeline, including pseudo-label training, embedding extraction, crop-mode inference, and final ensemble fusion.
 
-These files are excluded by `.gitignore`.
+![Proposed pipeline](fig/proposed_pipeline_pseudo.png)
 
-## Important Security Note
+### Leaderboard Results
 
-Never hard-code Kaggle or Hugging Face tokens in notebooks. Use environment variables, Colab Secrets, Kaggle Secrets, or `getpass()`.
+| Method | Public | Private |
+| --- | ---: | ---: |
+| EfficientNet-B7 | 0.84643 | 0.81620 |
+| EfficientNet-B6 | 0.83664 | 0.80298 |
+| EfficientNetV2-XL | 0.83697 | 0.79945 |
+| ConvNeXt-B | 0.80054 | 0.74866 |
+| Final ensemble | 0.86095 | **0.83044** |
+| Weak baseline | -- | 0.84909 |
 
-If a token was ever saved inside a notebook, revoke it from the Kaggle / Hugging Face website and create a new one before running future experiments.
+The final leaderboard screenshot is shown below.
 
-## Repository Initialization
-
-If this folder is not yet a Git repository:
-
-```bash
-git init
-git add .
-git commit -m "Initial project"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main
-```
+![Final leaderboard result](fig/final_result.jpg)

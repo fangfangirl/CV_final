@@ -12,6 +12,10 @@ kaggle.json
 
 # Data and downloaded caches
 data/
+!data/
+data/*
+!data/README.md
+!data/pseudo.csv
 datasets/
 input/
 output/
@@ -39,7 +43,7 @@ multimodel*/
 # Generated CSV outputs
 submission*.csv
 submission_summary.csv
-pseudo.csv
+/pseudo.csv
 
 # OS/editor
 .DS_Store
