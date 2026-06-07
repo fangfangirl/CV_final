@@ -25,6 +25,7 @@
 | [cv_B6_model_charm_hf_ipynb.ipynb](cv_B6_model_charm_hf_ipynb.ipynb) | EfficientNet-B6 notebook，包含 full-body、backfin 和 charm crop 設定。 |
 | [cv_convnext_model_hf.ipynb](cv_convnext_model_hf.ipynb) | ConvNeXt 單模型分支 notebook。 |
 | [cv_final_ensemble_hf.ipynb](cv_final_ensemble_hf.ipynb) | 最終 ensemble notebook，會從 Hugging Face 下載模型輸出、建立或讀取 matrices、融合分數並產生 submissions。 |
+| [cv_final_pseudo.ipynb](cv_final_pseudo.ipynb) | 選用的 pseudo-label confidence 匯出 notebook，會融合已儲存的 ensemble matrices，產生候選 pseudo confidence CSV。 |
 | [requirements.txt](requirements.txt) | 本機執行和 Jupyter kernel 所需套件。 |
 | [data/README.md](data/README.md) | 說明本機資料集應該放置的資料夾結構。 |
 
@@ -103,7 +104,9 @@ CV_final/
     pseudo.csv
 ```
 
-我們只提供本專案使用的 pseudo-label CSV，不提供產生 pseudo labels 的程式碼。如果你想要自己產生 pseudo labels，請自行實作或準備產生流程，並把產生出的 CSV 放在 `data/pseudo.csv`，或將 `CFG.pseudo_csv` / `PSEUDO_CSV` 指到你自己的檔案路徑。
+我們提供本專案使用的 pseudo-label CSV。選用的 [cv_final_pseudo.ipynb](cv_final_pseudo.ipynb) 可以從我們已儲存的 ensemble matrices 匯出 pseudo-label confidence candidates，並包含訓練 notebooks 可使用的相容欄位，例如 `top1_pred`、`top2_pred`、`score_margin_top1_top2`。
+
+這個 notebook 不是通用的 pseudo-label generation pipeline。如果你想要使用不同模型、不同 threshold 或不同資料自己產生 pseudo labels，請自行調整這個 notebook 或實作自己的產生流程，並把產生出的 CSV 放在 `data/pseudo.csv`，或將 `CFG.pseudo_csv` / `PSEUDO_CSV` 指到你自己的檔案路徑。
 
 若要啟用 pseudo-label training，請設定：
 

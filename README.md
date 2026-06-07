@@ -28,6 +28,7 @@ The experiments were run primarily on **Google Colab A100**. Because Colab sessi
 | [cv_B6_model_charm_hf_ipynb.ipynb](cv_B6_model_charm_hf_ipynb.ipynb) | EfficientNet-B6 notebook with full-body, backfin, and charm crop settings. |
 | [cv_convnext_model_hf.ipynb](cv_convnext_model_hf.ipynb) | ConvNeXt notebook for another single-model branch. |
 | [cv_final_ensemble_hf.ipynb](cv_final_ensemble_hf.ipynb) | Final ensemble notebook. It downloads model outputs from Hugging Face, builds / loads matrices, fuses predictions, and generates submissions. |
+| [cv_final_pseudo.ipynb](cv_final_pseudo.ipynb) | Optional pseudo-label confidence export notebook. It fuses saved ensemble matrices and writes a candidate pseudo confidence CSV. |
 | [requirements.txt](requirements.txt) | Python dependencies for local execution and Jupyter kernels. |
 | [data/README.md](data/README.md) | Documents the expected local dataset directory layout. |
 
@@ -106,7 +107,9 @@ CV_final/
     pseudo.csv
 ```
 
-We provide the pseudo-label CSV used by this project, but we do **not** provide the code for generating pseudo labels. If you want to create your own pseudo labels, please build your own generation pipeline and place the resulting CSV at `data/pseudo.csv` or set `CFG.pseudo_csv` / `PSEUDO_CSV` to your own file path.
+We provide the pseudo-label CSV used by this project. The optional [cv_final_pseudo.ipynb](cv_final_pseudo.ipynb) notebook can export pseudo-label confidence candidates from our saved ensemble matrices and includes columns compatible with the training notebooks, such as `top1_pred`, `top2_pred`, and `score_margin_top1_top2`.
+
+This helper is not a general pseudo-label generation pipeline. If you want to create your own pseudo labels with different models, thresholds, or data, please adapt the notebook or build your own generation pipeline, then place the resulting CSV at `data/pseudo.csv` or set `CFG.pseudo_csv` / `PSEUDO_CSV` to your own file path.
 
 To enable pseudo-label training, set:
 
