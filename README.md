@@ -292,7 +292,7 @@ Check the `CFG` class before running:
 
 ```python
 CFG.do_train = True
-CFG.resume = True
+CFG.resume = False
 CFG.hf_upload = True
 CFG.hf_repo_id = "your_name/your_hf_repo"
 ```
